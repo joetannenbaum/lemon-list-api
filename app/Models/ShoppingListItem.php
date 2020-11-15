@@ -23,6 +23,6 @@ class ShoppingListItem extends Model implements Sortable
 
     public function item()
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Item::class)->withTrashed();
     }
 }
