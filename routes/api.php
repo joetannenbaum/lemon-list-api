@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ShoppingListController;
 use App\Http\Controllers\ShoppingListItemController;
+use App\Http\Controllers\ShoppingListVersionController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\StoreTagController;
 use Illuminate\Http\Request;
@@ -20,20 +21,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('auth/register', AuthController::class . '@register');
+Route::post('auth/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 Route::group(['middleware' => 'auth:api'], function () {
-    // Route::get('photos/popular', [PhotoController::class, 'popular']);
+    Route::put('shopping-list-versions/{shopping_list_version}/reorder-items', [ShoppingListVersionController::class, 'reorderItems']);
 
     Route::apiResources([
-        'shopping-lists'       => ShoppingListController::class,
-        'shopping-lists.items' => ShoppingListItemController::class,
-        'items'                => ItemController::class,
-        'stores'               => StoreController::class,
-        'stores.tags'          => StoreTagController::class,
+        'shopping-lists'               => ShoppingListController::class,
+        'shopping-list-versions.items' => ShoppingListItemController::class,
+        'items'                        => ItemController::class,
+        'stores'                       => StoreController::class,
+        'stores.tags'                  => StoreTagController::class,
     ]);
 });

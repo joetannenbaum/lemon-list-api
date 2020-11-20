@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\ShoppingList;
+use App\Models\ShoppingListVersion;
 use Illuminate\Support\Str;
 
 class ShoppingListObserver
@@ -26,7 +27,7 @@ class ShoppingListObserver
      */
     public function created(ShoppingList $shoppingList)
     {
-        //
+        $shoppingList->versions()->save(new ShoppingListVersion());
     }
 
     /**

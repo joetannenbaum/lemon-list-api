@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ShoppingList;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class ShoppingListController extends Controller
 {
@@ -38,7 +37,9 @@ class ShoppingListController extends Controller
     public function show(ShoppingList $shoppingList)
     {
         // TODO: Include trashed items for archived list?
-        return $shoppingList->with('items.item');
+        $shoppingList->load('activeVersion.items.item');
+
+        return $shoppingList;
     }
 
     /**

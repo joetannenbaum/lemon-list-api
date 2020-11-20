@@ -13,6 +13,7 @@ class Item extends Model
     protected $fillable = [
         'name',
         'image',
+        'user_id',
     ];
 
     public function storeTags()

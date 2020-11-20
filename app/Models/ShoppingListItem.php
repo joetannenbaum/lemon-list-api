@@ -18,7 +18,7 @@ class ShoppingListItem extends Model implements Sortable
 
     public function buildSortQuery()
     {
-        return static::query()->where('shopping_list_id', $this->shopping_list_id);
+        return static::query()->where('shopping_list_version_id', $this->shopping_list_version_id);
     }
 
     public function item()

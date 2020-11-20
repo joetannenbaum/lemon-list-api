@@ -15,13 +15,15 @@ class CreateShoppingListItemsTable extends Migration
     {
         Schema::create('shopping_list_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('shopping_list_id');
+            $table->unsignedBigInteger('shopping_list_version_id');
             $table->unsignedBigInteger('item_id');
             $table->unsignedInteger('order');
             $table->unsignedInteger('quantity');
             $table->timestamps();
 
-            $table->foreign('shopping_list_id')->references('id')->on('shopping_lists')->onDelete('cascade');
+            $table->unique(['shopping_list_version_id', 'item_id'], 'version_id_item_id_uniq');
+
+            $table->foreign('shopping_list_version_id')->references('id')->on('shopping_list_versions')->onDelete('cascade');
             $table->foreign('item_id')->references('id')->on('items')->onDelete('cascade');
         });
     }

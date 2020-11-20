@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ShoppingList;
+use App\Models\Item;
 use App\Models\ShoppingListItem;
+use App\Models\ShoppingListVersion;
 use Illuminate\Http\Request;
 
 class ShoppingListItemController extends Controller
@@ -11,7 +12,7 @@ class ShoppingListItemController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if ($request->shopping_list->user->id !== $request->user()->id) {
+            if ($request->route('shopping_list_version')->shoppingList->user->id !== $request->user()->id) {
                 abort(401);
             }
 
@@ -24,9 +25,9 @@ class ShoppingListItemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, ShoppingList $list)
+    public function index(Request $request, ShoppingListVersion $shopping_list_version)
     {
-        return $list->items()->get();
+        return $shopping_list_version->items()->get();
     }
 
     /**
@@ -35,9 +36,29 @@ class ShoppingListItemController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, ShoppingList $list)
+    public function store(Request $request, ShoppingListVersion $shopping_list_version)
     {
-        return $list->items()->save(ShoppingListItem::make($request->all()));
+        $item = Item::firstOrCreate([
+            'name'    => $request->input('name'),
+            'user_id' => $shopping_list_version->shoppingList->user->id,
+        ]);
+
+        $existing = $shopping_list_version->items()->where('item_id', $item->id)->first();
+
+        if ($existing) {
+            $existing->quantity = $existing->quantity + 1;
+            $existing->save();
+
+            return $existing;
+        }
+
+        $list_item = new ShoppingListItem([
+            'quantity' => 1,
+        ]);
+
+        $list_item->item()->associate($item);
+
+        return $shopping_list_version->items()->save($list_item);
     }
 
     /**
@@ -46,7 +67,7 @@ class ShoppingListItemController extends Controller
      * @param  \App\Models\ShoppingListItem  $shoppingListItem
      * @return \Illuminate\Http\Response
      */
-    public function show(ShoppingListItem $shoppingListItem, ShoppingList $list)
+    public function show(ShoppingListVersion $shopping_list_version, ShoppingListItem $shoppingListItem)
     {
         return $shoppingListItem;
     }
@@ -58,11 +79,11 @@ class ShoppingListItemController extends Controller
      * @param  \App\Models\ShoppingListItem  $shoppingListItem
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ShoppingListItem $shoppingListItem)
+    public function update(Request $request, ShoppingListVersion $shopping_list_version, ShoppingListItem $item)
     {
-        $shoppingListItem->update($request->all());
+        $item->fill($request->all())->save();
 
-        return $shoppingListItem;
+        return $item;
     }
 
     /**
@@ -71,8 +92,8 @@ class ShoppingListItemController extends Controller
      * @param  \App\Models\ShoppingListItem  $shoppingListItem
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ShoppingListItem $shoppingListItem)
+    public function destroy(ShoppingListVersion $shopping_list_version, ShoppingListItem $item)
     {
-        $shoppingListItem->delete();
+        $item->delete();
     }
 }

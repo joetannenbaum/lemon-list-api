@@ -14,8 +14,18 @@ class ShoppingList extends Model
         'image',
     ];
 
-    public function items()
+    public function versions()
     {
-        return $this->hasMany(ShoppingListItem::class);
+        return $this->hasMany(ShoppingListVersion::class);
+    }
+
+    public function activeVersion()
+    {
+        return $this->hasOne(ShoppingListVersion::class)->active();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
