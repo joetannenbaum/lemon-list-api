@@ -81,7 +81,31 @@ class ShoppingListItemController extends Controller
      */
     public function update(Request $request, ShoppingListVersion $shopping_list_version, ShoppingListItem $item)
     {
-        $item->fill($request->all())->save();
+        $original_item = $item->item;
+        $user =  $shopping_list_version->shoppingList->user;
+
+        $item->fill($request->all());
+
+        if ($request->input('name')) {
+            $primary_item = Item::firstOrCreate([
+                'user_id' => $user->id,
+                'name'    => $request->input('name')
+            ]);
+
+            $item->item()->associate($primary_item);
+        }
+
+        $item->save();
+
+        if ($request->input('name')) {
+            $original_item_count = ShoppingListItem::where('item_id', $original_item->id)->count();
+
+            if ($original_item_count === 0) {
+                // If this item isn't in any of the user's lists,
+                // it's probably a mis-type and we should just clean up after ourselves.
+                $original_item->forceDelete();
+            }
+        }
 
         return $item;
     }
