@@ -17,6 +17,10 @@ class ShoppingListItem extends Model implements Sortable
         'checked_off',
     ];
 
+    protected $casts = [
+        'checked_off' => 'boolean',
+    ];
+
     public function buildSortQuery()
     {
         return static::query()->where('shopping_list_version_id', $this->shopping_list_version_id);
