@@ -37,6 +37,8 @@ class StoreController extends Controller
      */
     public function show(Store $store)
     {
+        $store->load('tags');
+
         return $store;
     }
 
@@ -63,5 +65,13 @@ class StoreController extends Controller
     public function destroy(Store $store)
     {
         $store->delete();
+    }
+
+    public function reorderTags(Request $request, Store $store)
+    {
+        // TODO: Verify that they own all of these items
+        StoreTag::setNewOrder($request->input('order'));
+
+        return $store;
     }
 }

@@ -11,7 +11,7 @@ class StoreTagController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if ($request->store->user->id !== $request->user()->id) {
+            if ($request->route('store')->user->id !== $request->user()->id) {
                 abort(401);
             }
 

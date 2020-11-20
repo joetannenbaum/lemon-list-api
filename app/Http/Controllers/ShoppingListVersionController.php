@@ -76,6 +76,7 @@ class ShoppingListVersionController extends Controller
 
     public function reorderItems(Request $request, ShoppingListVersion $shopping_list_version)
     {
+        // TODO: Verify that they own all of these items
         ShoppingListItem::setNewOrder($request->input('order'));
 
         return $shopping_list_version;

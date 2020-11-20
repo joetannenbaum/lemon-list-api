@@ -30,6 +30,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['middleware' => 'auth:api'], function () {
     Route::put('shopping-list-versions/{shopping_list_version}/reorder-items', [ShoppingListVersionController::class, 'reorderItems']);
 
+    Route::put('stores/{store}/reorder-tags', [StoreController::class, 'reorderTags']);
+
     Route::apiResources([
         'shopping-lists'               => ShoppingListController::class,
         'shopping-list-versions.items' => ShoppingListItemController::class,

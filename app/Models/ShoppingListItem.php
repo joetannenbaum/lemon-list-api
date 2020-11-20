@@ -14,6 +14,7 @@ class ShoppingListItem extends Model implements Sortable
     protected $fillable = [
         'order',
         'quantity',
+        'checked_off',
     ];
 
     public function buildSortQuery()
