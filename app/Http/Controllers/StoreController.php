@@ -15,7 +15,7 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->user()->stores()->get();
+        return $request->user()->stores()->with('tags')->get();
     }
 
     /**

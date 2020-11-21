@@ -18,6 +18,6 @@ class Item extends Model
 
     public function storeTags()
     {
-        return $this->hasManyThrough(StoreTag::class, 'item_store_tag');
+        return $this->belongsToMany(StoreTag::class, 'item_store_tag');
     }
 }

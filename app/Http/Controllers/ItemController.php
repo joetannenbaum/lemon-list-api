@@ -50,6 +50,12 @@ class ItemController extends Controller
     {
         $item->update($request->all());
 
+        if ($request->input('store_tags')) {
+            $tags = collect($request->input('store_tags'))->filter()->toArray();
+
+            $item->storeTags()->sync($tags);
+        }
+
         return $item;
     }
 

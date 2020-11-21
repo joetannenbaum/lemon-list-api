@@ -37,7 +37,7 @@ class ShoppingListController extends Controller
     public function show(ShoppingList $shoppingList)
     {
         // TODO: Include trashed items for archived list?
-        $shoppingList->load('activeVersion.items.item');
+        $shoppingList->load('activeVersion.items.item.storeTags');
 
         return $shoppingList;
     }
