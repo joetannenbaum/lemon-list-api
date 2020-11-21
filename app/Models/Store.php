@@ -16,7 +16,7 @@ class Store extends Model
 
     public function tags()
     {
-        return $this->hasMany(StoreTag::class)->orderBy('order');
+        return $this->hasMany(StoreTag::class)->ordered();
     }
 
     public function user()
