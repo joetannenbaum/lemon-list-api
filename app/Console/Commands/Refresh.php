@@ -69,5 +69,11 @@ class Refresh extends Command
         ]);
 
         $user->stores()->save($store);
+
+        $store = Store::make([
+            'name' => 'Health Nuts',
+        ]);
+
+        $user->stores()->save($store);
     }
 }
