@@ -46,9 +46,9 @@ class StoreTagController extends Controller
      * @param  \App\Models\StoreTag  $storeTag
      * @return \Illuminate\Http\Response
      */
-    public function show(StoreTag $storeTag)
+    public function show(StoreTag $tag)
     {
-        return $storeTag;
+        return $tag;
     }
 
     /**
@@ -58,11 +58,11 @@ class StoreTagController extends Controller
      * @param  \App\Models\StoreTag  $storeTag
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, StoreTag $storeTag)
+    public function update(Request $request, Store $store, StoreTag $tag)
     {
-        $storeTag->update($request->all());
+        $tag->update($request->all());
 
-        return $storeTag;
+        return $tag;
     }
 
     /**
@@ -71,8 +71,8 @@ class StoreTagController extends Controller
      * @param  \App\Models\StoreTag  $storeTag
      * @return \Illuminate\Http\Response
      */
-    public function destroy(StoreTag $storeTag)
+    public function destroy(Store $store, StoreTag $tag)
     {
-        $storeTag->delete();
+        $tag->delete();
     }
 }
