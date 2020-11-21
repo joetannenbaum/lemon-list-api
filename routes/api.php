@@ -28,7 +28,15 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group(['middleware' => 'auth:api'], function () {
-    Route::put('shopping-list-versions/{shopping_list_version}/reorder-items', [ShoppingListVersionController::class, 'reorderItems']);
+    Route::put(
+        'shopping-list-versions/{shopping_list_version}/reorder-items',
+        [ShoppingListVersionController::class, 'reorderItems']
+    );
+
+    Route::post(
+        'shopping-list-versions/{shopping_list_version}/items-from-list',
+        [ShoppingListVersionController::class, 'addItemsFromAnotherList']
+    );
 
     Route::put('stores/{store}/reorder-tags', [StoreController::class, 'reorderTags']);
 

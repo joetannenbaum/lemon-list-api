@@ -81,4 +81,28 @@ class ShoppingListVersionController extends Controller
 
         return $shopping_list_version;
     }
+
+    public function addItemsFromAnotherList(Request $request, ShoppingListVersion $shopping_list_version)
+    {
+        ShoppingListItem::whereIn('id', $request->input('item_ids'))
+                        ->get()
+                        ->each(function ($item) use ($shopping_list_version) {
+                            $existing = $shopping_list_version->items()
+                                                                ->where('item_id', $item->item_id)
+                                                                ->first();
+
+                            if ($existing) {
+                                $existing->quantity = $existing->quantity + $item->quantity;
+                                $existing->save();
+
+                                return $existing;
+                            }
+
+                            $new_item = $item->replicate();
+
+                            $new_item->checked_off = false;
+
+                            $shopping_list_version->items()->save($new_item);
+                        });
+    }
 }
