@@ -28,6 +28,16 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group(['middleware' => 'auth:api'], function () {
+    Route::get(
+        'shopping-lists/uuid/{uuid}',
+        [ShoppingListController::class, 'findByUuid']
+    );
+
+    Route::post(
+        'shopping-lists/join/{uuid}',
+        [ShoppingListController::class, 'joinByUuid']
+    );
+
     Route::put(
         'shopping-list-versions/{shopping_list_version}/reorder-items',
         [ShoppingListVersionController::class, 'reorderItems']

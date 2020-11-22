@@ -62,7 +62,9 @@ class Refresh extends Command
             'name' => 'Grocery List',
         ]);
 
-        $user->shoppingLists()->save($list);
+        $list->owner()->associate($user);
+
+        $list->save();
 
         $store = Store::make([
             'name' => 'Westside Market',

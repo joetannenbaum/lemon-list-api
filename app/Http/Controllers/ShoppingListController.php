@@ -25,7 +25,13 @@ class ShoppingListController extends Controller
      */
     public function store(Request $request)
     {
-        return $request->user()->shoppingLists()->save(ShoppingList::make($request->all()));
+        $list = ShoppingList::make($request->all());
+
+        $list->owner()->associate($request->user());
+
+        $list->save();
+
+        return $list;
     }
 
     /**
@@ -65,5 +71,24 @@ class ShoppingListController extends Controller
     public function destroy(ShoppingList $shoppingList)
     {
         $shoppingList->delete();
+    }
+
+    public function findByUuid($uuid)
+    {
+        return ShoppingList::where('uuid', $uuid)->firstOrFail();
+    }
+
+    public function joinByUuid(Request $request, $uuid)
+    {
+        $list = ShoppingList::where('uuid', $uuid)->firstOrFail();
+
+        if ($list->users()->pluck('users.id')->contains($request->user()->id)) {
+            // This user is already associated with the list, just return
+            return $list;
+        }
+
+        $list->users()->save($request->user());
+
+        return $list;
     }
 }

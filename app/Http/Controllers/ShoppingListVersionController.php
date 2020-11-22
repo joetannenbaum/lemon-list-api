@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ShoppingListUpdated;
 use App\Models\ShoppingListItem;
 use App\Models\ShoppingListVersion;
 use Illuminate\Http\Request;
@@ -79,6 +80,9 @@ class ShoppingListVersionController extends Controller
         // TODO: Verify that they own all of these items
         ShoppingListItem::setNewOrder($request->input('order'));
 
+        event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
+
+
         return $shopping_list_version;
     }
 
@@ -104,5 +108,7 @@ class ShoppingListVersionController extends Controller
 
                             $shopping_list_version->items()->save($new_item);
                         });
+
+        event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
     }
 }

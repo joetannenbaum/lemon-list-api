@@ -49,7 +49,7 @@ class User extends Authenticatable
 
     public function shoppingLists()
     {
-        return $this->hasMany(ShoppingList::class);
+        return $this->belongsToMany(ShoppingList::class, 'user_shopping_list');
     }
 
     public function items()

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ShoppingListUpdated;
 use App\Models\Item;
 use App\Models\ShoppingListItem;
 use App\Models\ShoppingListVersion;
@@ -12,7 +13,7 @@ class ShoppingListItemController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if ($request->route('shopping_list_version')->shoppingList->user->id !== $request->user()->id) {
+            if ($request->route('shopping_list_version')->shoppingList->owner->id !== $request->user()->id) {
                 abort(401);
             }
 
@@ -40,7 +41,7 @@ class ShoppingListItemController extends Controller
     {
         $item = Item::firstOrCreate([
             'name'    => $request->input('name'),
-            'user_id' => $shopping_list_version->shoppingList->user->id,
+            'user_id' => $shopping_list_version->shoppingList->owner->id,
         ]);
 
         $existing = $shopping_list_version->items()->where('item_id', $item->id)->first();
@@ -57,6 +58,8 @@ class ShoppingListItemController extends Controller
         ]);
 
         $list_item->item()->associate($item);
+
+        event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
 
         return $shopping_list_version->items()->save($list_item);
     }
@@ -82,7 +85,7 @@ class ShoppingListItemController extends Controller
     public function update(Request $request, ShoppingListVersion $shopping_list_version, ShoppingListItem $item)
     {
         $original_item = $item->item;
-        $user =  $shopping_list_version->shoppingList->user;
+        $user =  $shopping_list_version->shoppingList->owner;
 
         $item->fill($request->all());
 
@@ -107,6 +110,8 @@ class ShoppingListItemController extends Controller
             }
         }
 
+        event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
+
         return $item;
     }
 
@@ -116,8 +121,10 @@ class ShoppingListItemController extends Controller
      * @param  \App\Models\ShoppingListItem  $shoppingListItem
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ShoppingListVersion $shopping_list_version, ShoppingListItem $item)
+    public function destroy(Request $request, ShoppingListVersion $shopping_list_version, ShoppingListItem $item)
     {
         $item->delete();
+
+        event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
     }
 }

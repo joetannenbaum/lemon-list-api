@@ -24,8 +24,13 @@ class ShoppingList extends Model
         return $this->hasOne(ShoppingListVersion::class)->active();
     }
 
-    public function user()
+    public function owner()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_shopping_list')->withTimestamps();
     }
 }

@@ -28,6 +28,7 @@ class ShoppingListObserver
     public function created(ShoppingList $shoppingList)
     {
         $shoppingList->versions()->save(new ShoppingListVersion());
+        $shoppingList->users()->save($shoppingList->owner);
     }
 
     /**
