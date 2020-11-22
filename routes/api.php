@@ -7,6 +7,7 @@ use App\Http\Controllers\ShoppingListItemController;
 use App\Http\Controllers\ShoppingListVersionController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\StoreTagController;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('auth/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+    return new UserResource($request->user());
 });
 
 Route::group(['middleware' => 'auth:api'], function () {

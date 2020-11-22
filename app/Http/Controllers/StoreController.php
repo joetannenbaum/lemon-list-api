@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StoreResource;
 use App\Models\Store;
 use App\Models\StoreTag;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->user()->stores()->with('tags')->get();
+        return StoreResource::collection($request->user()->stores()->with('tags')->get());
     }
 
     /**
@@ -26,7 +27,11 @@ class StoreController extends Controller
      */
     public function store(Request $request)
     {
-        return $request->user()->stores()->save(Store::make($request->all()));
+        $store = Store::make($request->all());
+
+        $request->user()->stores()->save($store);
+
+        return new StoreResource($store);
     }
 
     /**
@@ -39,7 +44,7 @@ class StoreController extends Controller
     {
         $store->load('tags');
 
-        return $store;
+        return new StoreResource($store);
     }
 
     /**
@@ -53,7 +58,7 @@ class StoreController extends Controller
     {
         $store->update($request->all());
 
-        return $store;
+        return new StoreResource($store);
     }
 
     /**
@@ -72,6 +77,6 @@ class StoreController extends Controller
         // TODO: Verify that they own all of these items
         StoreTag::setNewOrder($request->input('order'));
 
-        return $store;
+        return new StoreResource($store);
     }
 }

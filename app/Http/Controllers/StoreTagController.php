@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StoreTagResource;
 use App\Models\Store;
 use App\Models\StoreTag;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class StoreTagController extends Controller
      */
     public function index(Request $request, Store $store)
     {
-        return $store->tags()->get();
+        return StoreTagResource::collection($store->tags()->get());
     }
 
     /**
@@ -37,7 +38,11 @@ class StoreTagController extends Controller
      */
     public function store(Request $request, Store $store)
     {
-        return $store->tags()->save(StoreTag::make($request->all()));
+        $tag = StoreTag::make($request->all());
+
+        $store->tags()->save($tag);
+
+        return new StoreTagResource($tag);
     }
 
     /**
@@ -48,7 +53,7 @@ class StoreTagController extends Controller
      */
     public function show(StoreTag $tag)
     {
-        return $tag;
+        return new StoreTagResource($tag);
     }
 
     /**
@@ -62,7 +67,7 @@ class StoreTagController extends Controller
     {
         $tag->update($request->all());
 
-        return $tag;
+        return new StoreTagResource($tag);
     }
 
     /**

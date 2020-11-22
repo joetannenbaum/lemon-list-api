@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->user()->items()->orderBy('name')->get();
+        return ItemResource::collection($request->user()->items()->orderBy('name')->get());
     }
 
     /**
@@ -25,7 +26,11 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        $request->user()->items()->save(Item::make($request->all()));
+        $item = Item::make($request->all());
+
+        $request->user()->items()->save($item);
+
+        return new ItemResource($item);
     }
 
     /**
@@ -36,7 +41,7 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
-        return $item;
+        return new ItemResource($item);
     }
 
     /**
@@ -60,7 +65,7 @@ class ItemController extends Controller
             }
         }
 
-        return $item;
+        return new ItemResource($item);
     }
 
     /**

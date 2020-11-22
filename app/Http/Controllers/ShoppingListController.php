@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ShoppingListResource;
 use App\Models\ShoppingList;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,9 @@ class ShoppingListController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->user()->shoppingLists()->orderBy('name')->get();
+        return ShoppingListResource::collection(
+            $request->user()->shoppingLists()->orderBy('name')->get()
+        );
     }
 
     /**
@@ -31,7 +34,7 @@ class ShoppingListController extends Controller
 
         $list->save();
 
-        return $list;
+        return new ShoppingListResource($list);
     }
 
     /**
@@ -45,7 +48,7 @@ class ShoppingListController extends Controller
         // TODO: Include trashed items for archived list?
         $shoppingList->load('activeVersion.items.item.storeTags');
 
-        return $shoppingList;
+        return new ShoppingListResource($shoppingList);
     }
 
     /**
@@ -59,7 +62,7 @@ class ShoppingListController extends Controller
     {
         $shoppingList->update($request->all());
 
-        return $shoppingList;
+        return new ShoppingListResource($shoppingList);
     }
 
     /**
@@ -75,7 +78,7 @@ class ShoppingListController extends Controller
 
     public function findByUuid($uuid)
     {
-        return ShoppingList::where('uuid', $uuid)->firstOrFail();
+        return new ShoppingListResource(ShoppingList::where('uuid', $uuid)->firstOrFail());
     }
 
     public function joinByUuid(Request $request, $uuid)
@@ -89,6 +92,6 @@ class ShoppingListController extends Controller
 
         $list->users()->save($request->user());
 
-        return $list;
+        return new ShoppingListResource($list);
     }
 }

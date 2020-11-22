@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ShoppingListUpdated;
+use App\Http\Resources\ShoppingListVersionResource;
 use App\Models\ShoppingListItem;
 use App\Models\ShoppingListVersion;
 use Illuminate\Http\Request;
@@ -83,7 +84,7 @@ class ShoppingListVersionController extends Controller
         event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
 
 
-        return $shopping_list_version;
+        return new ShoppingListVersionResource($shopping_list_version);
     }
 
     public function addItemsFromAnotherList(Request $request, ShoppingListVersion $shopping_list_version)

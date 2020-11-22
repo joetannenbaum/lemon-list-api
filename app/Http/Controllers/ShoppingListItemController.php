@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ShoppingListUpdated;
+use App\Http\Resources\ShoppingListItemResource;
 use App\Models\Item;
 use App\Models\ShoppingListItem;
 use App\Models\ShoppingListVersion;
@@ -28,7 +29,7 @@ class ShoppingListItemController extends Controller
      */
     public function index(Request $request, ShoppingListVersion $shopping_list_version)
     {
-        return $shopping_list_version->items()->get();
+        return ShoppingListItemResource::collection($shopping_list_version->items()->get());
     }
 
     /**
@@ -50,7 +51,9 @@ class ShoppingListItemController extends Controller
             $existing->quantity = $existing->quantity + 1;
             $existing->save();
 
-            return $existing;
+            event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
+
+            return new ShoppingListItemResource($existing);
         }
 
         $list_item = new ShoppingListItem([
@@ -61,7 +64,9 @@ class ShoppingListItemController extends Controller
 
         event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
 
-        return $shopping_list_version->items()->save($list_item);
+        $shopping_list_version->items()->save($list_item);
+
+        return new ShoppingListItemResource($list_item);
     }
 
     /**
@@ -72,7 +77,7 @@ class ShoppingListItemController extends Controller
      */
     public function show(ShoppingListVersion $shopping_list_version, ShoppingListItem $shoppingListItem)
     {
-        return $shoppingListItem;
+        return new ShoppingListItemResource($shoppingListItem);
     }
 
     /**
@@ -112,7 +117,7 @@ class ShoppingListItemController extends Controller
 
         event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
 
-        return $item;
+        return new ShoppingListItemResource($item);
     }
 
     /**

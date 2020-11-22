@@ -40,4 +40,9 @@ class ShoppingListUpdated implements ShouldBroadcast
     {
         return new Channel(sprintf('shopping-list-%d', $this->list->id));
     }
+
+    public function broadcastWhen()
+    {
+        return $this->list->is_shared;
+    }
 }

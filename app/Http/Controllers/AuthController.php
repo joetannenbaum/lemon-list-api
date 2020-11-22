@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +19,6 @@ class AuthController extends Controller
             'password' => Hash::make($request->input('password')),
         ]);
 
-        return $user;
+        return new UserResource($user);
     }
 }

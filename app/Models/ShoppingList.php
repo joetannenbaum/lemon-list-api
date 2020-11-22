@@ -33,4 +33,9 @@ class ShoppingList extends Model
     {
         return $this->belongsToMany(User::class, 'user_shopping_list')->withTimestamps();
     }
+
+    public function getIsSharedAttribute()
+    {
+        return $this->users()->count() > 1;
+    }
 }
