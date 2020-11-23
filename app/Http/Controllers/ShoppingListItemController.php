@@ -14,8 +14,8 @@ class ShoppingListItemController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if ($request->route('shopping_list_version')->shoppingList->owner->id !== $request->user()->id) {
-                abort(401);
+            if (!$request->route('shopping_list_version')->shoppingList->users()->find($request->user()->id, ['users.id'])) {
+                abort(401, 'You are unauthorized to perform this action');
             }
 
             return $next($request);
