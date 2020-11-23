@@ -40,21 +40,33 @@ class ShoppingListItemController extends Controller
      */
     public function store(Request $request, ShoppingListVersion $shopping_list_version)
     {
-        $item = Item::firstOrCreate([
-            'name'    => $request->input('name'),
-            'user_id' => $shopping_list_version->shoppingList->owner->id,
-        ]);
+        $existing_item_ids = Item::where('name', $request->input('name'))
+                                    ->whereIn(
+                                        'user_id',
+                                        $shopping_list_version->shoppingList->users()->pluck('users.id')
+                                    )
+                                    ->pluck('id');
 
-        $existing = $shopping_list_version->items()->where('item_id', $item->id)->first();
 
-        if ($existing) {
-            $existing->quantity = $existing->quantity + 1;
-            $existing->save();
+        if ($existing_item_ids->count()) {
+            $existing = $shopping_list_version->items()
+                                            ->whereIn('item_id', $existing_item_ids)
+                                            ->first();
 
-            event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
+            if ($existing) {
+                $existing->quantity = $existing->quantity + 1;
+                $existing->save();
 
-            return new ShoppingListItemResource($existing);
+                event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
+
+                return new ShoppingListItemResource($existing);
+            }
         }
+
+        $item = Item::create([
+            'name'    => $request->input('name'),
+            'user_id' => $request->user()->id,
+        ]);
 
         $list_item = new ShoppingListItem([
             'quantity' => 1,
