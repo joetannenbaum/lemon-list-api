@@ -32,14 +32,39 @@ class ShoppingListItemController extends Controller
         return ShoppingListItemResource::collection($shopping_list_version->items()->get());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request, ShoppingListVersion $shopping_list_version)
+    protected function saveNewShoppingListItem(ShoppingListVersion $shopping_list_version, Item $item)
     {
+        $list_item = ShoppingListItem::make()->item()->associate($item);
+
+        $shopping_list_version->items()->save($list_item);
+
+        return $list_item;
+    }
+
+    protected function increaseItemQuantity(ShoppingListItem $item)
+    {
+        $item->quantity = $item->quantity + 1;
+        $item->save();
+
+        return $item;
+    }
+
+    protected function findOrCreateItemInList(Request $request, ShoppingListVersion $shopping_list_version)
+    {
+        if ($request->input('item_id')) {
+            // They sent in an explicit item id, just add it and move on
+            $item = Item::findOrFail($request->input('item_id'));
+
+            $existing = $shopping_list_version->items()->where('item_id', $item->id)->first();
+
+            if ($existing) {
+                return $this->increaseItemQuantity($existing);
+            }
+
+            return $this->saveNewShoppingListItem($shopping_list_version, $item);
+        }
+
+        // They sent in a "name" field, let's see what we've got
         $existing_item_ids = Item::where('name', $request->input('name'))
                                     ->whereIn(
                                         'user_id',
@@ -54,12 +79,7 @@ class ShoppingListItemController extends Controller
                                             ->first();
 
             if ($existing) {
-                $existing->quantity = $existing->quantity + 1;
-                $existing->save();
-
-                event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
-
-                return new ShoppingListItemResource($existing);
+                return $this->increaseItemQuantity($existing);
             }
         }
 
@@ -68,15 +88,20 @@ class ShoppingListItemController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        $list_item = new ShoppingListItem([
-            'quantity' => 1,
-        ]);
+        return $this->saveNewShoppingListItem($shopping_list_version, $item);
+    }
 
-        $list_item->item()->associate($item);
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request, ShoppingListVersion $shopping_list_version)
+    {
+        $list_item = $this->findOrCreateItemInList($request, $shopping_list_version);
 
         event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
-
-        $shopping_list_version->items()->save($list_item);
 
         return new ShoppingListItemResource($list_item);
     }
@@ -102,7 +127,7 @@ class ShoppingListItemController extends Controller
     public function update(Request $request, ShoppingListVersion $shopping_list_version, ShoppingListItem $item)
     {
         $original_item = $item->item;
-        $user =  $shopping_list_version->shoppingList->owner;
+        $user = $shopping_list_version->shoppingList->owner;
 
         $item->fill($request->all());
 
@@ -140,7 +165,18 @@ class ShoppingListItemController extends Controller
      */
     public function destroy(Request $request, ShoppingListVersion $shopping_list_version, ShoppingListItem $item)
     {
+        $original_item = $item->item;
+
         $item->delete();
+
+        $original_item_count = ShoppingListItem::where('item_id', $original_item->id)->count();
+
+        if ($original_item_count === 0) {
+            // If this item isn't in any of the user's lists
+            // we should just clean up after ourselves.
+            $original_item->forceDelete();
+        }
+
 
         event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
     }
