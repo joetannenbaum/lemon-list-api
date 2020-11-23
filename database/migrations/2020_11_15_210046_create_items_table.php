@@ -21,6 +21,8 @@ class CreateItemsTable extends Migration
             $table->softDeletes();
             $table->timestamps();
 
+            $table->unique(['name', 'user_id']);
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
