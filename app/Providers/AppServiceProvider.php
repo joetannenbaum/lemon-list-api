@@ -3,10 +3,11 @@
 namespace App\Providers;
 
 use App\Models\ShoppingList;
+use App\Models\ShoppingListItem;
 use App\Models\Store;
+use App\Observers\ShoppingListItemObserver;
 use App\Observers\ShoppingListObserver;
 use App\Observers\StoreObserver;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -30,14 +31,6 @@ class AppServiceProvider extends ServiceProvider
     {
         ShoppingList::observe(ShoppingListObserver::class);
         Store::observe(StoreObserver::class);
-
-        // DB::listen(function ($query) {
-        //     \Log::info($query->sql);
-        //     \Log::info($query->bindings);
-
-        //     // $query->sql
-        //     // $query->bindings
-        //     // $query->time
-        // });
+        ShoppingListItem::observe(ShoppingListItemObserver::class);
     }
 }
