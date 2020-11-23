@@ -143,18 +143,25 @@ class ShoppingListItemController extends Controller
         $item->save();
 
         if ($request->input('name')) {
-            $original_item_count = ShoppingListItem::where('item_id', $original_item->id)->count();
-
-            if ($original_item_count === 0) {
-                // If this item isn't in any of the user's lists,
-                // it's probably a mis-type and we should just clean up after ourselves.
-                $original_item->forceDelete();
-            }
+            // If this item isn't in any of the user's lists,
+            // it's probably a mis-type and we should just clean up after ourselves.
+            $this->checkForOrphanItem($original_item);
         }
 
         event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
 
         return new ShoppingListItemResource($item);
+    }
+
+    protected function checkForOrphanItem(Item $item)
+    {
+        $item_count = ShoppingListItem::where('item_id', $item->id)->count();
+
+        if ($item_count === 0) {
+            // If this item isn't in any of the user's lists,
+            // it's probably a mis-type and we should just clean up after ourselves.
+            $item->forceDelete();
+        }
     }
 
     /**
@@ -169,14 +176,7 @@ class ShoppingListItemController extends Controller
 
         $item->delete();
 
-        $original_item_count = ShoppingListItem::where('item_id', $original_item->id)->count();
-
-        if ($original_item_count === 0) {
-            // If this item isn't in any of the user's lists
-            // we should just clean up after ourselves.
-            $original_item->forceDelete();
-        }
-
+        $this->checkForOrphanItem($original_item);
 
         event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
     }
