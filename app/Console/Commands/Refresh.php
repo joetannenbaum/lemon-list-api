@@ -77,5 +77,13 @@ class Refresh extends Command
         ]);
 
         $user->stores()->save($store);
+
+        $user = User::create([
+            'name'     => 'Sharone Sayegh',
+            'email'    => 'sharone@joe.codes',
+            'password' => Hash::make('asdfasdf'),
+        ]);
+
+        $list->users()->save($user);
     }
 }
