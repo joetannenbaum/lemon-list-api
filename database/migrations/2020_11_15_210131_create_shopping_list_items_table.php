@@ -19,6 +19,7 @@ class CreateShoppingListItemsTable extends Migration
             $table->unsignedBigInteger('item_id');
             $table->unsignedInteger('order');
             $table->unsignedInteger('quantity');
+            $table->text('note')->nullable();
             $table->boolean('checked_off')->default(false);
             $table->timestamps();
 

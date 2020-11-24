@@ -15,6 +15,7 @@ class ShoppingListItem extends Model implements Sortable
         'order',
         'quantity',
         'checked_off',
+        'note',
     ];
 
     protected $casts = [
