@@ -7,6 +7,7 @@ use App\Http\Resources\ShoppingListItemResource;
 use App\Models\Item;
 use App\Models\ShoppingListItem;
 use App\Models\ShoppingListVersion;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class ShoppingListItemController extends Controller
@@ -49,6 +50,16 @@ class ShoppingListItemController extends Controller
         return $item;
     }
 
+    protected function findExistingItemsFromUsers($name, $shopping_list_version)
+    {
+        return Item::where('name', $name)
+                                    ->whereIn(
+                                        'user_id',
+                                        $shopping_list_version->shoppingList->users()->pluck('users.id')
+                                    )
+                                    ->pluck('id');
+    }
+
     protected function findOrCreateItemInList(Request $request, ShoppingListVersion $shopping_list_version)
     {
         if ($request->input('item_id')) {
@@ -65,13 +76,7 @@ class ShoppingListItemController extends Controller
         }
 
         // They sent in a "name" field, let's see what we've got
-        $existing_item_ids = Item::where('name', $request->input('name'))
-                                    ->whereIn(
-                                        'user_id',
-                                        $shopping_list_version->shoppingList->users()->pluck('users.id')
-                                    )
-                                    ->pluck('id');
-
+        $existing_item_ids = $this->findExistingItemsFromUsers($request->input('name'), $shopping_list_version);
 
         if ($existing_item_ids->count()) {
             $existing = $shopping_list_version->items()
@@ -127,24 +132,40 @@ class ShoppingListItemController extends Controller
     public function update(Request $request, ShoppingListVersion $shopping_list_version, ShoppingListItem $item)
     {
         $original_item = $item->item;
-        $user = $shopping_list_version->shoppingList->owner;
 
         $item->fill($request->all());
 
-        if ($request->input('name')) {
-            $primary_item = Item::firstOrCreate([
-                'user_id' => $user->id,
-                'name'    => $request->input('name')
-            ]);
+        if ($request->input('name') && $request->input('name') !== $item->item->name) {
+            $existing_items = $this->findExistingItemsFromUsers($request->input('name'), $shopping_list_version);
 
-            $item->item()->associate($primary_item);
+            if ($existing_items->count()) {
+                $new_item_id = $existing_items->first();
+
+                // Double check that this item isn't already in the list
+                $item_in_list = $shopping_list_version->items()->where('item_id', $new_item_id)->first();
+
+                if ($item_in_list) {
+                    $item_in_list->quantity = $item_in_list->quantity + $item->quantity;
+                    $item_in_list->save();
+                    $item->delete();
+                } else {
+                    // We found an existing item, associate that with the record
+                    $item->item()->associate($new_item_id);
+                }
+            } else {
+                // This is a new item, associate it with the user and attach it
+                $primary_item = Item::firstOrCreate([
+                    'user_id' => $request->user()->id,
+                    'name'    => $request->input('name')
+                ]);
+
+                $item->item()->associate($primary_item);
+            }
         }
 
         $item->save();
 
         if ($request->input('name')) {
-            // If this item isn't in any of the user's lists,
-            // it's probably a mis-type and we should just clean up after ourselves.
             $this->checkForOrphanItem($original_item);
         }
 
