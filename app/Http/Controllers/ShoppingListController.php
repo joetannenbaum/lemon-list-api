@@ -16,7 +16,7 @@ class ShoppingListController extends Controller
     public function index(Request $request)
     {
         return ShoppingListResource::collection(
-            $request->user()->shoppingLists()->orderBy('name')->get()
+            $request->user()->shoppingLists()->with('activeVersion')->orderBy('name')->get()
         );
     }
 
@@ -33,6 +33,8 @@ class ShoppingListController extends Controller
         $list->owner()->associate($request->user());
 
         $list->save();
+
+        $list->load('activeVersion');
 
         return new ShoppingListResource($list);
     }

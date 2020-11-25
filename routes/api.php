@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ParseControlller;
 use App\Http\Controllers\ShoppingListController;
 use App\Http\Controllers\ShoppingListItemController;
 use App\Http\Controllers\ShoppingListVersionController;
@@ -29,6 +30,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group(['middleware' => 'auth:api'], function () {
+    Route::post('parse/url', [ParseControlller::class, 'url']);
+    Route::post('parse/text', [ParseControlller::class, 'text']);
+
     Route::get(
         'shopping-lists/uuid/{uuid}',
         [ShoppingListController::class, 'findByUuid']
