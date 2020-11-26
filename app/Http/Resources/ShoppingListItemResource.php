@@ -20,7 +20,7 @@ class ShoppingListItemResource extends JsonResource
             'item_id'                  => $this->item_id,
             'order'                    => $this->order,
             'quantity'                 => $this->quantity,
-            'checked_off'              => $this->checked_off,
+            'checked_off'              => !!$this->checked_off,
             'note'                     => $this->note,
             'item'                     => new ItemResource($this->whenLoaded('item')),
         ];

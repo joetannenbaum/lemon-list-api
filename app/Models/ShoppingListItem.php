@@ -19,7 +19,11 @@ class ShoppingListItem extends Model implements Sortable
     ];
 
     protected $casts = [
-        'checked_off' => 'boolean',
+        'checked_off'              => 'bool',
+        'item_id'                  => 'int',
+        'shopping_list_version_id' => 'int',
+        'order'                    => 'int',
+        'quantity'                    => 'int',
     ];
 
     public function buildSortQuery()

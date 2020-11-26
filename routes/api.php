@@ -53,6 +53,11 @@ Route::group(['middleware' => 'auth:api'], function () {
         [ShoppingListVersionController::class, 'addItemsFromAnotherList']
     );
 
+    Route::post(
+        'shopping-list-versions/{shopping_list_version}/batch-items',
+        [ShoppingListItemController::class, 'addBatchItems']
+    );
+
     Route::put('stores/{store}/reorder-tags', [StoreController::class, 'reorderTags']);
 
     Route::apiResources([

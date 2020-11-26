@@ -83,32 +83,31 @@ class ShoppingListVersionController extends Controller
 
         event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
 
-
         return new ShoppingListVersionResource($shopping_list_version);
     }
 
     public function addItemsFromAnotherList(Request $request, ShoppingListVersion $shopping_list_version)
     {
         ShoppingListItem::whereIn('id', $request->input('item_ids'))
-                        ->get()
-                        ->each(function ($item) use ($shopping_list_version) {
-                            $existing = $shopping_list_version->items()
-                                                                ->where('item_id', $item->item_id)
-                                                                ->first();
+            ->get()
+            ->each(function ($item) use ($shopping_list_version) {
+                $existing = $shopping_list_version->items()
+                    ->where('item_id', $item->item_id)
+                    ->first();
 
-                            if ($existing) {
-                                $existing->quantity = $existing->quantity + $item->quantity;
-                                $existing->save();
+                if ($existing) {
+                    $existing->quantity = $existing->quantity + $item->quantity;
+                    $existing->save();
 
-                                return $existing;
-                            }
+                    return $existing;
+                }
 
-                            $new_item = $item->replicate();
+                $new_item = $item->replicate();
 
-                            $new_item->checked_off = false;
+                $new_item->checked_off = false;
 
-                            $shopping_list_version->items()->save($new_item);
-                        });
+                $shopping_list_version->items()->save($new_item);
+            });
 
         event(new ShoppingListUpdated($shopping_list_version->shoppingList, $request->user()));
     }

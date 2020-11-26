@@ -16,6 +16,10 @@ class Item extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'user_id' => 'int',
+    ];
+
     public function storeTags()
     {
         return $this->belongsToMany(StoreTag::class, 'item_store_tag');
