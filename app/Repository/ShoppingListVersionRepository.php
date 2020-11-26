@@ -19,10 +19,10 @@ class ShoppingListVersionRepository
             $existing = $version->items()->where('item_id', $item->id)->first();
 
             if ($existing) {
-                return $this->increaseItemQuantity($existing);
+                return $this->handleAddingExisting($existing, $params);
             }
 
-            return $this->saveNewShoppingListItem($version, $item);
+            return $this->saveNewShoppingListItem($version, $item, $params);
         }
 
         // They sent in a "name" field, let's see what we've got
@@ -34,7 +34,7 @@ class ShoppingListVersionRepository
                 ->first();
 
             if ($existing) {
-                return $this->increaseItemQuantity($existing);
+                return $this->handleAddingExisting($existing, $params);
             }
         }
 
@@ -43,7 +43,7 @@ class ShoppingListVersionRepository
             'user_id' => $user->id,
         ]);
 
-        return $this->saveNewShoppingListItem($version, $item);
+        return $this->saveNewShoppingListItem($version, $item, $params);
     }
 
     public function updateItem(ShoppingListVersion $version, ShoppingListItem $item, $user, $params)
@@ -111,9 +111,15 @@ class ShoppingListVersionRepository
         return $item;
     }
 
-    protected function increaseItemQuantity(ShoppingListItem $item)
+    protected function handleAddingExisting(ShoppingListItem $item, $params)
     {
-        $item->quantity = $item->quantity + 1;
+        // We are adding something that already exists, the quantity should go up by at least 1
+        $item->quantity = $item->quantity + (Arr::get($params, 'quantity') ?: 1);
+
+        if (Arr::get($params, 'note')) {
+            $item->note = collect([$item->note, $params['note']])->filter()->implode(', ');
+        }
+
         $item->save();
         $item->load('item');
 
@@ -130,9 +136,9 @@ class ShoppingListVersionRepository
             ->pluck('id');
     }
 
-    protected function saveNewShoppingListItem(ShoppingListVersion $version, Item $item)
+    protected function saveNewShoppingListItem(ShoppingListVersion $version, Item $item, array $params)
     {
-        $list_item = ShoppingListItem::make()->item()->associate($item);
+        $list_item = ShoppingListItem::make($params)->item()->associate($item);
 
         $version->items()->save($list_item);
 

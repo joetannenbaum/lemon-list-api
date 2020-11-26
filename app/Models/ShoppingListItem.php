@@ -23,7 +23,7 @@ class ShoppingListItem extends Model implements Sortable
         'item_id'                  => 'int',
         'shopping_list_version_id' => 'int',
         'order'                    => 'int',
-        'quantity'                    => 'int',
+        'quantity'                 => 'int',
     ];
 
     public function buildSortQuery()

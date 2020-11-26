@@ -99,45 +99,15 @@ class ShoppingListItemController extends Controller
 
     public function addBatchItems(Request $request, ShoppingListVersion $shopping_list_version)
     {
-        $new_items = collect($request->input('items'))->map(function ($item) use ($shopping_list_version, $request) {
-
-            // They sent in a "name" field, let's see what we've got
-            $existing_item_ids = $this->findExistingItemsFromUsers($item['name'], $shopping_list_version);
-
-            if ($existing_item_ids->count()) {
-                $existing = $shopping_list_version->items()
-                    ->whereIn('item_id', $existing_item_ids)
-                    ->first();
-
-                if ($existing) {
-                    $existing->quantity = $existing->quantity + $item['quantity'];
-
-                    if (!$existing->note) {
-                        $existing->note = $item['note'] ?: null;
-                    }
-
-                    $existing->save();
-
-                    return $existing;
-                }
+        $new_items = collect($request->input('items'))->map(
+            function ($item) use ($shopping_list_version, $request) {
+                return app(ShoppingListVersionRepository::class)->addItem(
+                    $shopping_list_version,
+                    $request->user(),
+                    $item,
+                );
             }
-
-            $item = Item::create([
-                'name'    => $item['name'],
-                'user_id' => $request->user()->id,
-            ]);
-
-            $list_item = ShoppingListItem::make([
-                'quantity' => $item['quantity'],
-                'note'     => $item['note'],
-            ]);
-
-            $list_item->item()->associate($item);
-
-            $shopping_list_version->items()->save($list_item);
-
-            return $list_item;
-        });
+        );
 
         return ShoppingListItemResource::collection($new_items);
     }

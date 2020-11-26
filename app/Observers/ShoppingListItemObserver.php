@@ -14,7 +14,9 @@ class ShoppingListItemObserver
      */
     public function creating(ShoppingListItem $shoppingListItem)
     {
-        $shoppingListItem->quantity = 1;
+        if (!$shoppingListItem->quantity) {
+            $shoppingListItem->quantity = 1;
+        }
     }
 
     /**
