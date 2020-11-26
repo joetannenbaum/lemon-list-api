@@ -13,6 +13,14 @@ class ShoppingListVersionTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function addItemsToList($version_id, $params)
+    {
+        return $this->postJson(
+            sprintf('api/shopping-list-versions/%d/items', $version_id),
+            $params
+        );
+    }
+
     public function testAddBasicItem()
     {
         $user = User::factory()->create();
@@ -58,22 +66,22 @@ class ShoppingListVersionTest extends TestCase
 
         Passport::actingAs($user);
 
-        $this->postJson(
-            sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+        $this->addItemsToList(
+            $list->activeVersion->id,
             [
                 'name' => 'blueberries'
             ]
         );
 
-        $this->postJson(
-            sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+        $this->addItemsToList(
+            $list->activeVersion->id,
             [
                 'name' => 'raspberries'
             ]
         );
 
-        $response = $this->postJson(
-            sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+        $response = $this->addItemsToList(
+            $list->activeVersion->id,
             [
                 'name' => 'blueberries'
             ]
@@ -109,22 +117,22 @@ class ShoppingListVersionTest extends TestCase
 
         Passport::actingAs($user);
 
-        $this->postJson(
-            sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+        $this->addItemsToList(
+            $list->activeVersion->id,
             [
                 'name' => 'blueberries'
             ]
         );
 
-        $this->postJson(
-            sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+        $this->addItemsToList(
+            $list->activeVersion->id,
             [
                 'name' => 'raspberries'
             ]
         );
 
-        $this->postJson(
-            sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+        $this->addItemsToList(
+            $list->activeVersion->id,
             [
                 'name' => 'chicken'
             ]
@@ -153,22 +161,22 @@ class ShoppingListVersionTest extends TestCase
 
         Passport::actingAs($user);
 
-        $this->postJson(
-            sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+        $this->addItemsToList(
+            $list->activeVersion->id,
             [
                 'name' => 'blueberries'
             ]
         );
 
-        $this->postJson(
-            sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+        $this->addItemsToList(
+            $list->activeVersion->id,
             [
                 'name' => 'raspberries'
             ]
         );
 
-        $this->postJson(
-            sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+        $this->addItemsToList(
+            $list->activeVersion->id,
             [
                 'name' => 'chicken'
             ]
@@ -184,11 +192,58 @@ class ShoppingListVersionTest extends TestCase
 
         $list->activeVersion->load('items.item');
 
-        // dd($list->activeVersion->items->toArray(), ShoppingListItem::find(1)->quantity);
-
-        // $response->assertOk();
+        $response->assertOk();
 
         $this->assertSame(ShoppingListItem::find(1)->quantity, 5);
         $this->assertCount(2, $list->activeVersion->items);
     }
+
+    // public function testAddBatchItems()
+    // {
+    //     $user = User::factory()->create();
+    //     $list = ShoppingList::factory()->make();
+    //     $list->owner()->associate($user);
+    //     $list->save();
+    //     $list->load('activeVersion');
+
+    //     Passport::actingAs($user);
+
+    //     $this->postJson(
+    //         sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+    //         [
+    //             'name' => 'blueberries'
+    //         ]
+    //     );
+
+    //     $this->postJson(
+    //         sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+    //         [
+    //             'name' => 'raspberries'
+    //         ]
+    //     );
+
+    //     $this->postJson(
+    //         sprintf('api/shopping-list-versions/%d/items', $list->activeVersion->id),
+    //         [
+    //             'name' => 'chicken'
+    //         ]
+    //     );
+
+    //     $response = $this->putJson(
+    //         sprintf('api/shopping-list-versions/%d/items/3', $list->activeVersion->id),
+    //         [
+    //             'name' => 'blueberries',
+    //             'quantity' => 4,
+    //         ]
+    //     );
+
+    //     $list->activeVersion->load('items.item');
+
+    //     // dd($list->activeVersion->items->toArray(), ShoppingListItem::find(1)->quantity);
+
+    //     // $response->assertOk();
+
+    //     $this->assertSame(ShoppingListItem::find(1)->quantity, 5);
+    //     $this->assertCount(2, $list->activeVersion->items);
+    // }
 }

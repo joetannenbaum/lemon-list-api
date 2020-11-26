@@ -115,7 +115,6 @@ class ShoppingListVersionRepository
     {
         $item->quantity = $item->quantity + 1;
         $item->save();
-
         $item->load('item');
 
         return $item;
