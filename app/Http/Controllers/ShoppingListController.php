@@ -63,7 +63,9 @@ class ShoppingListController extends Controller
      */
     public function update(Request $request, ShoppingList $shoppingList)
     {
-        $shoppingList->update($request->all());
+        $shoppingList->fill($request->all())->save();
+
+        event(new ShoppingListUpdated($shoppingList, $request->user()));
 
         return new ShoppingListResource($shoppingList);
     }
