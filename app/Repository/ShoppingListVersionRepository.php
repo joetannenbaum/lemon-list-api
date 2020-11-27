@@ -38,7 +38,7 @@ class ShoppingListVersionRepository
             }
         }
 
-        $item = Item::create([
+        $item = Item::firstOrCreate([
             'name'    => $params['name'],
             'user_id' => $user->id,
         ]);
