@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ShoppingListUpdated;
 use App\Http\Resources\ShoppingListResource;
 use App\Models\ShoppingList;
 use Illuminate\Http\Request;
@@ -73,9 +74,15 @@ class ShoppingListController extends Controller
      * @param  \App\Models\ShoppingList  $shoppingList
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ShoppingList $shoppingList)
+    public function destroy(Request $request, ShoppingList $shoppingList)
     {
-        $shoppingList->delete();
+        if ($shoppingList->owner->id === $request->user()->id) {
+            $shoppingList->delete();
+        } else {
+            $request->user()->shoppingLists()->detach($shoppingList);
+        }
+
+        event(new ShoppingListUpdated($shoppingList, $request->user()));
     }
 
     public function findByUuid($uuid)

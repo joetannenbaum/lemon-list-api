@@ -19,6 +19,7 @@ class CreateShoppingListsTable extends Migration
             $table->string('name');
             $table->string('image')->nullable();
             $table->string('uuid');
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');

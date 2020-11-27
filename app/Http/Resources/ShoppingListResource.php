@@ -21,6 +21,7 @@ class ShoppingListResource extends JsonResource
             'image'          => $this->image,
             'uuid'           => $this->uuid,
             'is_shared'      => $this->is_shared,
+            'is_owner'       => $this->owner->id === $request->user()->id,
             'active_version' => new ShoppingListVersionResource($this->whenLoaded('activeVersion')),
         ];
     }
