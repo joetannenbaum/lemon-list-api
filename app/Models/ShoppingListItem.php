@@ -35,4 +35,14 @@ class ShoppingListItem extends Model implements Sortable
     {
         return $this->belongsTo(Item::class)->withTrashed();
     }
+
+    public function scopeChecked($query)
+    {
+        $query->where('checked_off', true);
+    }
+
+    public function scopeUnchecked($query)
+    {
+        $query->where('checked_off', false);
+    }
 }

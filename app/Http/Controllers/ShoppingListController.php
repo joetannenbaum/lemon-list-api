@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Events\ShoppingListUpdated;
 use App\Http\Resources\ShoppingListResource;
 use App\Models\ShoppingList;
+use App\Models\ShoppingListVersion;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ShoppingListController extends Controller
@@ -104,5 +106,26 @@ class ShoppingListController extends Controller
         $list->users()->save($request->user());
 
         return new ShoppingListResource($list);
+    }
+
+    public function archiveCurrentVersion(Request $request, ShoppingList $shoppingList)
+    {
+        $old_version = $shoppingList->activeVersion;
+
+        $unchecked_items = $old_version->items()->unchecked()->get();
+
+        $old_version->archived_at = Carbon::now();
+
+        $old_version->save();
+
+        $new_version = new ShoppingListVersion();
+
+        $shoppingList->versions()->save($new_version);
+
+        $unchecked_items->each(function ($item) use ($new_version) {
+            $new_version->items()->save($item->replicate());
+        });
+
+        event(new ShoppingListUpdated($shoppingList, $request->user()));
     }
 }

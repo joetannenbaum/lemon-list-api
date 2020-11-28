@@ -43,6 +43,11 @@ Route::group(['middleware' => 'auth:api'], function () {
         [ShoppingListController::class, 'joinByUuid']
     );
 
+    Route::post(
+        'shopping-lists/{shopping_list}/archive',
+        [ShoppingListController::class, 'archiveCurrentVersion']
+    );
+
     Route::put(
         'shopping-list-versions/{shopping_list_version}/reorder-items',
         [ShoppingListVersionController::class, 'reorderItems']
