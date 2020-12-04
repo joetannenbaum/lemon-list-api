@@ -16,6 +16,9 @@ class ItemRepository
 
         if (Arr::get($params, 'store_tags')) {
             if (!$user_has_item) {
+                // A non-owner is trying to tag the item,
+                // but they don't have the item associated with them yet,
+                // attach it to their account
                 $user->items()->save($item);
             }
 

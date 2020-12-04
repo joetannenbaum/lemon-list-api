@@ -66,13 +66,26 @@ class ShoppingListVersionRepository
         // This is a new item, associate it with the user and attach it
         $primary_item = Item::firstOrCreate([
             'owner_id' => $user->id,
-            'name'    => $params['name']
+            'name'     => $params['name']
         ]);
+
+        $original_item = $item->item;
 
         $item->item()->associate($primary_item);
         $item->save();
 
-        $this->checkForOrphanItem($item->item);
+        // If the old item had user tags attached to it, do the same for the new item
+        $to_sync = $original_item->storeTags()->withPivot('user_id')->get()->mapWithKeys(function ($tag) {
+            return [
+                $tag->id => [
+                    'user_id' => $tag->pivot->user_id,
+                ],
+            ];
+        });
+
+        $primary_item->storeTags()->sync($to_sync);
+
+        $this->checkForOrphanItem($original_item);
 
         return $item;
     }
