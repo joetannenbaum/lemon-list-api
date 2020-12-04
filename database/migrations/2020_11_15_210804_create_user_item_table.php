@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateItemStoreTagTable extends Migration
+class CreateUserItemTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,16 @@ class CreateItemStoreTagTable extends Migration
      */
     public function up()
     {
-        Schema::create('item_store_tag', function (Blueprint $table) {
+        Schema::create('user_item', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('item_id');
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('store_tag_id');
+            $table->unsignedBigInteger('item_id');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unique(['user_id', 'item_id']);
+
             $table->foreign('item_id')->references('id')->on('items')->onDelete('cascade');
-            $table->foreign('store_tag_id')->references('id')->on('store_tags')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -33,6 +33,6 @@ class CreateItemStoreTagTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('item_store_tag');
+        Schema::dropIfExists('user_item');
     }
 }

@@ -49,7 +49,7 @@ class ShoppingListVersionTest extends TestCase
                 'note' => null,
                 'item' => [
                     'id' => 1,
-                    'user_id' => $user->id,
+                    'owner_id' => $user->id,
                     'name' => 'blueberries',
                 ],
             ],
@@ -98,7 +98,7 @@ class ShoppingListVersionTest extends TestCase
                 'note' => null,
                 'item' => [
                     'id' => 1,
-                    'user_id' => $user->id,
+                    'owner_id' => $user->id,
                     'name' => 'blueberries',
                 ],
             ],
@@ -257,8 +257,6 @@ class ShoppingListVersionTest extends TestCase
         );
 
         $response->assertOk();
-
-        $response->dump();
 
         $item1 = ShoppingListItem::find(1);
 

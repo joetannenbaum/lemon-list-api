@@ -40,7 +40,7 @@ class ShoppingListVersionRepository
 
         $item = Item::firstOrCreate([
             'name'    => $params['name'],
-            'user_id' => $user->id,
+            'owner_id' => $user->id,
         ]);
 
         return $this->saveNewShoppingListItem($version, $item, $params);
@@ -65,7 +65,7 @@ class ShoppingListVersionRepository
 
         // This is a new item, associate it with the user and attach it
         $primary_item = Item::firstOrCreate([
-            'user_id' => $user->id,
+            'owner_id' => $user->id,
             'name'    => $params['name']
         ]);
 
@@ -130,7 +130,7 @@ class ShoppingListVersionRepository
     {
         return Item::where('name', $name)
             ->whereIn(
-                'user_id',
+                'owner_id',
                 $version->shoppingList->users()->pluck('users.id')
             )
             ->pluck('id');

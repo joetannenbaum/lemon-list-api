@@ -13,15 +13,25 @@ class Item extends Model
     protected $fillable = [
         'name',
         'image',
-        'user_id',
+        'owner_id',
     ];
 
     protected $casts = [
-        'user_id' => 'int',
+        'owner_id' => 'int',
     ];
 
     public function storeTags()
     {
         return $this->belongsToMany(StoreTag::class, 'item_store_tag');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_item');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
     }
 }

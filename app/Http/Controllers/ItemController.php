@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ItemResource;
 use App\Models\Item;
+use App\Repository\ItemRepository;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -53,17 +54,7 @@ class ItemController extends Controller
      */
     public function update(Request $request, Item $item)
     {
-        $item->update($request->all());
-
-        if ($request->input('store_tags')) {
-            $tags = collect($request->input('store_tags'))->filter();
-
-            if ($tags->count() === 0) {
-                $item->storeTags()->detach();
-            } else {
-                $item->storeTags()->sync($tags->toArray());
-            }
-        }
+        $item = app(ItemRepository::class)->update($item, $request->all(), $request->user());
 
         return new ItemResource($item);
     }

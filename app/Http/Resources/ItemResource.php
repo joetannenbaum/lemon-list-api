@@ -15,9 +15,9 @@ class ItemResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'      => $this->id,
-            'user_id' => $this->user_id,
-            'name'    => $this->name,
+            'id'         => $this->id,
+            'owner_id'   => $this->owner_id,
+            'name'       => $this->name,
             'store_tags' => StoreTagResource::collection($this->whenLoaded('storeTags')),
         ];
     }
