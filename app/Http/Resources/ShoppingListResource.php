@@ -23,6 +23,7 @@ class ShoppingListResource extends JsonResource
             'is_shared'      => $this->is_shared,
             'is_owner'       => $this->owner->id === $request->user()->id,
             'active_version' => new ShoppingListVersionResource($this->whenLoaded('activeVersion')),
+            'total_items'    => $this->activeVersion->items()->count(),
         ];
     }
 }
