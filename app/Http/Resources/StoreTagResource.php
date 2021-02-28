@@ -15,9 +15,10 @@ class StoreTagResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'    => $this->id,
-            'name'  => $this->name,
-            'order' => $this->order,
+            'id'       => $this->id,
+            'name'     => $this->name,
+            'order'    => $this->order,
+            'store_id' => $this->store_id,
         ];
     }
 }
