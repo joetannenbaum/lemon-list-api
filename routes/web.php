@@ -7,5 +7,5 @@ Route::get('/', function () {
 });
 
 Route::get('/list/{uuid}', function () {
-    return view('welcome');
+    return null;
 });

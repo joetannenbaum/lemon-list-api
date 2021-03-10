@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
 class ParsedItemResource extends JsonResource
 {
@@ -15,7 +16,8 @@ class ParsedItemResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'           => $this->id ?? null,
+            'id'           => Str::random(10),
+            'item_id'      => $this->id ?? null,
             'aisle'        => $this->aisle ?? null,
             'name'         => $this->name,
             'original'     => $this->original,
