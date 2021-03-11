@@ -176,6 +176,8 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         Spatie\EloquentSortable\EloquentSortableServiceProvider::class,
+
+        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
     ],
 
     /*
