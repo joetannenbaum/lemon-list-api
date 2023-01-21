@@ -31,7 +31,7 @@ class AuthCategorizeAllItems extends Command
     {
         User::with('items')->find([1, 6])->each(
             fn ($u) => $u->items->each(
-                fn ($i, $index) => dispatch(new AutoCategorizeItem($i))->delay(now()->addSeconds($index + 1))
+                fn ($i, $index) => dispatch(new AutoCategorizeItem($i))->delay(now()->addSeconds($index * 2))
             )
         );
 
