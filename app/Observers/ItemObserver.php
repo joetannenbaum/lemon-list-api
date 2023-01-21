@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Jobs\AutoCategorizeItem;
 use App\Models\Item;
 
 class ItemObserver
@@ -15,6 +16,7 @@ class ItemObserver
     public function created(Item $item)
     {
         $item->users()->save($item->owner);
+        dispatch(new AutoCategorizeItem($item));
     }
 
     /**
